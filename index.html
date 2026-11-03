@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gawa gawa ko lang para kay luv 💜</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg1:#f3e8ff; --bg2:#e0c3fc; --card:#ffffff; --text:#4c1d95; --muted:#7e57c2;
+  --yes:#a855f7; --yes-text:#ffffff; --no:#ede0ff; --no-text:#6b21a8; --arena:rgba(255,255,255,.55);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg1:#1e1033; --bg2:#3b1d6e; --card:#2a1650; --text:#f3e8ff; --muted:#d8b4fe;
+    --yes:#c084fc; --yes-text:#2e1065; --no:#3b2468; --no-text:#e9d5ff; --arena:rgba(42,22,80,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg1:#1e1033; --bg2:#3b1d6e; --card:#2a1650; --text:#f3e8ff; --muted:#d8b4fe;
+  --yes:#c084fc; --yes-text:#2e1065; --no:#3b2468; --no-text:#e9d5ff; --arena:rgba(42,22,80,.6);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{font-family:"Fredoka","Baloo 2","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;background:linear-gradient(160deg,var(--bg1),var(--bg2));color:var(--text);overflow:hidden;position:relative}
+.float{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.float span{position:absolute;bottom:-40px;font-size:24px;opacity:.55;animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-115vh) rotate(25deg)}}
+
+/* pages + transitions */
+.page{position:relative;z-index:1;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;gap:16px}
+.page.active{display:flex;animation:pin .6s cubic-bezier(.2,.8,.3,1)}
+.page.leave{display:flex;animation:pout .45s ease forwards}
+@keyframes pin{from{opacity:0;transform:translateY(40px) scale(.94);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+@keyframes pout{to{opacity:0;transform:translateY(-30px) scale(.94);filter:blur(8px)}}
+#pF{justify-content:flex-start;overflow-y:auto;padding-top:36px;padding-bottom:40px}
+
+.emoji{font-size:84px;animation:bounce 1.6s ease-in-out infinite}
+@keyframes bounce{50%{transform:translateY(-12px) scale(1.06)}}
+h1{font-size:clamp(30px,8vw,52px);margin:0;line-height:1.15}
+h2{margin:6px 0 0;font-size:22px}
+p.sub{margin:0;color:var(--muted);font-size:18px}
+.btns{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:10px}
+button{font-family:inherit;border:none;cursor:pointer;border-radius:999px;font-weight:600;transition:transform .15s}
+button:active{transform:scale(.95)}
+#yes{background:var(--yes);color:var(--yes-text);font-size:20px;padding:14px 34px;box-shadow:0 8px 20px rgba(168,85,247,.4);transition:font-size .25s,padding .25s}
+#yes.full{position:fixed;inset:0;border-radius:0;z-index:5;font-size:14vw;padding:0}
+#no{background:var(--no);color:var(--no-text);font-size:18px;padding:12px 28px}
+.msg{background:var(--yes);color:var(--yes-text);font-size:19px;padding:14px 28px;box-shadow:0 8px 20px rgba(168,85,247,.4)}
+.card{background:var(--card);border-radius:28px;padding:26px 24px;max-width:420px;width:100%;box-shadow:0 12px 36px rgba(126,34,206,.25);line-height:1.6;font-size:18px;animation:pin .5s ease}
+
+/* arrow game */
+.arena{position:relative;width:100%;max-width:420px;height:360px;border-radius:28px;background:var(--arena);box-shadow:0 12px 36px rgba(126,34,206,.25);overflow:hidden;touch-action:manipulation;cursor:pointer}
+#target{position:absolute;top:20px;left:0;font-size:64px;line-height:1;user-select:none;transition:font-size .3s}
+#target.boom{animation:boom .5s ease forwards}
+@keyframes boom{50%{transform:scale(1.8) rotate(10deg)}to{transform:scale(0);opacity:0}}
+#arrow{position:absolute;left:50%;bottom:70px;width:6px;height:46px;margin-left:-3px;border-radius:3px;background:linear-gradient(#f0abfc,#a855f7);transition:bottom .45s cubic-bezier(.3,.6,.5,1),opacity .3s}
+#arrow::before{content:"";position:absolute;top:-12px;left:-6px;border:9px solid transparent;border-bottom:14px solid #f0abfc;border-top:0}
+.cupid{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);font-size:52px}
+.fb{font-size:18px;font-weight:600;min-height:26px;color:var(--muted)}
+
+/* tiles + modal */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:420px}
+.tile{background:var(--card);color:var(--text);border-radius:26px;padding:20px 12px;box-shadow:0 8px 22px rgba(126,34,206,.22);display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.tile:nth-child(3){grid-column:1 / -1}
+.tile .ic{font-size:44px}.tile b{font-size:17px}.tile small{color:var(--muted);font-size:13px;font-weight:500}
+.modal{position:fixed;inset:0;z-index:10;background:rgba(46,16,101,.55);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal .card{text-align:center;display:flex;flex-direction:column;gap:12px}
+.vid{border-radius:18px;overflow:hidden;background:var(--bg1)}
+.vid video{width:100%;display:block}
+.vid .ph{padding:40px 12px;color:var(--muted);font-size:16px}
+.hide{display:none!important}
+.confetti{position:fixed;top:-20px;font-size:22px;z-index:20;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+</style>
+</head>
+<body>
+<div class="float" id="float"></div>
+
+<section class="page active" id="p1">
+  <div class="emoji">🥺</div>
+  <h1>Do you love me?</h1>
+  <p class="sub">Think carefully… 💜</p>
+  <div class="btns">
+    <button id="yes">Yes 💜</button>
+    <button id="no">No</button>
+  </div>
+</section>
+
+<section class="page" id="pA">
+  <h1>Shoot the heart! 🏹</h1>
+  <p class="sub">Tap when the heart is right above the arrow</p>
+  <div class="arena" id="arena">
+    <div id="target">💜</div>
+    <div id="arrow" class="hide"></div>
+    <div class="cupid">😇</div>
+  </div>
+  <div class="fb" id="fb"></div>
+  <button class="msg" id="shoot">Shoot 🏹</button>
+</section>
+
+<section class="page" id="pF">
+  <div class="emoji">🎂</div>
+  <h1>Happy Birthday Roxanne!! 🎉</h1>
+  <button class="msg" id="msgBtn">A short message for you 💌</button>
+  <div class="card hide" id="card">
+    <!-- ✏️ Edit your message below -->
+    <span>Happy birthday to my favorite person in this earth luv! I hope maging happy and ma-enjoy mo 'tong birthday mo and more blessings to come, don't stop pursuing your dreams po. I hope this year brings you endless smiles, sweet surprises, and everything your heart wishes for. I wabyou so much! 💜</span>
+  </div>
+  <h2>Pick one, cutie 👇</h2>
+  <div class="grid" id="grid"></div>
+</section>
+
+<div class="modal hide" id="modal">
+  <div class="card">
+    <div style="font-size:44px" id="mIcon"></div>
+    <b id="mTitle" style="font-size:22px"></b>
+    <span id="mDesc" style="color:var(--muted)"></span>
+    <div class="vid" id="mVid"></div>
+    <button class="msg" id="close">Close 💜</button>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+// 🎬 Para sa video: ilagay ang video link/data sa src ng bawat tile
+const TILES=[
+  {icon:'🎁',title:'Please click this',desc:'favorite memes mo hihihi',src:'cat.mp4'},
+  {icon:'💌',title:'Click me too',desc:'most song na nagaappear sayo hihihi 💜',src:'cure.mp4'},
+  {icon:'🥰',title:'Last one, click this!',desc:'pang buang na tiktok natin ✨',src:'buang.mp4'}
+];
+
+// transitions between pages
+let cur='p1';
+function go(id){
+  const a=$(cur), b=$(id); cur=id;
+  a.classList.add('leave');
+  setTimeout(()=>{a.classList.remove('active','leave');b.classList.add('active');b.scrollTop=0;},450);
+}
+
+// floating background
+const fl=$('float'), icons=['💜','💕','✨','🦋','🌸','⭐'];
+for(let i=0;i<18;i++){
+  const s=document.createElement('span');
+  s.textContent=icons[i%icons.length];
+  s.style.left=Math.random()*100+'%';
+  s.style.fontSize=(16+Math.random()*22)+'px';
+  s.style.animationDuration=(8+Math.random()*10)+'s';
+  s.style.animationDelay=(-Math.random()*14)+'s';
+  fl.appendChild(s);
+}
+
+function confetti(){
+  const c=['🎉','💜','✨','🎈','🌸','💖','🎀'];
+  for(let i=0;i<45;i++){
+    const e=document.createElement('div');
+    e.className='confetti';
+    e.textContent=c[Math.floor(Math.random()*c.length)];
+    e.style.left=Math.random()*100+'vw';
+    e.style.animationDuration=(2.5+Math.random()*2.5)+'s';
+    e.style.animationDelay=(Math.random()*1.5)+'s';
+    document.body.appendChild(e);
+    setTimeout(()=>e.remove(),6500);
+  }
+}
+
+// PAGE 1
+const noTexts=["No","Are you sure? 🥺","Really?? 😢","Think again 💔","Pretty please 🥹","Don’t do this 😭","Last chance! 💜","Just click Yes 😤"];
+let clicks=0;
+const yes=$('yes'), no=$('no');
+no.addEventListener('click',()=>{
+  clicks++;
+  no.textContent=noTexts[Math.min(clicks,noTexts.length-1)];
+  if(clicks>=8){yes.classList.add('full');yes.textContent='Yes 💜💜💜';no.style.display='none';return;}
+  yes.style.fontSize=(20+clicks*9)+'px';
+  yes.style.padding=(14+clicks*7)+'px '+(34+clicks*14)+'px';
+  no.style.fontSize=Math.max(11,18-clicks)+'px';
+});
+yes.addEventListener('click',()=>{
+  yes.classList.remove('full');
+  confetti();
+  go('pA');
+  setTimeout(startGame,600);
+});
+
+// PAGE 2: shoot the heart
+const arena=$('arena'), heart=$('target'), arrow=$('arrow');
+let hx=0, dir=1, raf=null, shooting=false, playing=false, misses=0;
+function loop(){
+  const w=arena.clientWidth, hw=heart.offsetWidth;
+  hx+=dir*2.6*(w/360);
+  if(hx<=0){hx=0;dir=1;}
+  if(hx>=w-hw){hx=w-hw;dir=-1;}
+  heart.style.left=hx+'px';
+  raf=requestAnimationFrame(loop);
+}
+function startGame(){
+  cancelAnimationFrame(raf);
+  misses=0;shooting=false;playing=true;
+  heart.className='';heart.textContent='💜';heart.style.fontSize='64px';
+  $('fb').textContent='';
+  loop();
+}
+function shoot(){
+  if(!playing||shooting)return;
+  shooting=true;
+  arrow.style.transition='none';arrow.style.opacity='1';arrow.style.bottom='70px';
+  arrow.classList.remove('hide');
+  void arrow.offsetWidth;
+  arrow.style.transition='';
+  arrow.style.bottom='262px';
+  setTimeout(()=>{
+    const w=arena.clientWidth, hw=heart.offsetWidth;
+    const diff=Math.abs((hx+hw/2)-w/2);
+    if(diff<hw*0.6){
+      playing=false;cancelAnimationFrame(raf);
+      heart.className='boom';arrow.classList.add('hide');
+      $('fb').textContent='Bullseye! 💘';
+      confetti();
+      setTimeout(()=>go('pF'),1100);
+    }else{
+      misses++;
+      arrow.style.opacity='0';
+      $('fb').textContent=misses>=2?'So close! I made the heart bigger 💜':'Oops, missed! 💔 Try again';
+      if(misses>=2) heart.style.fontSize=(64+(misses-1)*18)+'px';
+      setTimeout(()=>{arrow.classList.add('hide');shooting=false;},300);
+    }
+  },470);
+}
+$('shoot').addEventListener('click',e=>{e.stopPropagation();shoot();});
+arena.addEventListener('click',shoot);
+
+// FINAL PAGE
+$('msgBtn').addEventListener('click',()=>{
+  $('msgBtn').classList.add('hide');
+  $('card').classList.remove('hide');
+  confetti();
+});
+
+// tiles + popup
+TILES.forEach(t=>{
+  const b=document.createElement('button');
+  b.className='tile';
+  b.innerHTML='<span class="ic">'+t.icon+'</span><b>'+t.title+'</b><small>tap me 💜</small>';
+  b.onclick=()=>{
+    $('mIcon').textContent=t.icon;
+    $('mTitle').textContent=t.title;
+    $('mDesc').textContent=t.desc;
+    const v=$('mVid'); v.innerHTML='';
+    if(t.src){const el=document.createElement('video');el.controls=true;el.playsInline=true;el.src=t.src;v.appendChild(el);}
+    else v.innerHTML='<div class="ph">🎬 Dito ilalagay ang video</div>';
+    $('modal').classList.remove('hide');
+    confetti();
+  };
+  $('grid').appendChild(b);
+});
+function closeM(){$('modal').classList.add('hide');$('mVid').innerHTML='';}
+$('close').onclick=closeM;
+$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeM();});
+</script>
+</body>
+</html>
